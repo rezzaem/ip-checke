@@ -9,8 +9,9 @@ subnet = '192.168.1.'
 paziresh_range = range(50, 86)
 hemato_range = range(86, 101)
 tests_range = range(101, 151)
-genetic_range = range(151, 181)
-edari_range = range(181, 201)
+genetic_range = range(151, 171)
+edari_range = range(171, 201)
+block_ip=[128]
 
 # Initialize empty dictionaries for each category
 paziresh_devices = {}
@@ -24,6 +25,7 @@ print("checking Ip's....")
 nmap_output = subprocess.check_output(["nmap", "-sP", subnet + "0/24"]).decode('utf-8')
 
 # Parse the nmap output to extract the IP addresses and hostnames of live hosts
+tmp_counter=1
 for line in nmap_output.splitlines():
     if 'Nmap scan report for' in line:
         ip = line.split()[-1]
@@ -31,9 +33,16 @@ for line in nmap_output.splitlines():
     elif 'MAC Address' in line:
         hostname = line.split()[1]
     elif 'Host is up' in line:
+        print (line)
+        print (ip)
         # Determine the category of the device based on its IP address
         if int(ip.split('.')[-1]) in paziresh_range:
-            paziresh_devices[hostname] = ip
+            # this is for ip's without host name
+            if hostname in paziresh_devices :
+                paziresh_devices[hostname+str(tmp_counter)]=ip
+                tmp_counter+=1
+            else :
+                paziresh_devices[hostname] = ip
         elif int(ip.split('.')[-1]) in hemato_range:
             hemato_devices[hostname] = ip
         elif int(ip.split('.')[-1]) in tests_range:
