@@ -1,5 +1,6 @@
-import socket
 import os
+import socket
+import subprocess
 
 # Define the network subnet to scan
 subnet = '192.168.1.'
@@ -18,26 +19,27 @@ tests_devices = {}
 genetic_devices = {}
 edari_devices = {}
 
-# Loop through all possible IP addresses in the subnet and attempt to ping each one
-for i in range(1, 256):
-    ip = subnet + str(i)
-    response = os.system('ping -n 1 ' + ip)
-    if response == 0:
-        # If the ping is successful, try to resolve the IP address to a hostname
-        try:
-            hostname = socket.gethostbyaddr(ip)[0]
-        except:
-            hostname = 'Unknown'
+# Use nmap to scan for live hosts on the network
+nmap_output = subprocess.check_output(["nmap", "-sP", subnet + "0/24"]).decode('utf-8')
+
+# Parse the nmap output to extract the IP addresses and hostnames of live hosts
+for line in nmap_output.splitlines():
+    if 'Nmap scan report for' in line:
+        ip = line.split()[-1]
+        hostname = ''
+    elif 'MAC Address' in line:
+        hostname = line.split()[1]
+    elif 'Host is up' in line:
         # Determine the category of the device based on its IP address
-        if i in paziresh_range:
+        if int(ip.split('.')[-1]) in paziresh_range:
             paziresh_devices[hostname] = ip
-        elif i in hemato_range:
+        elif int(ip.split('.')[-1]) in hemato_range:
             hemato_devices[hostname] = ip
-        elif i in tests_range:
+        elif int(ip.split('.')[-1]) in tests_range:
             tests_devices[hostname] = ip
-        elif i in genetic_range:
+        elif int(ip.split('.')[-1]) in genetic_range:
             genetic_devices[hostname] = ip
-        elif i in edari_range:
+        elif int(ip.split('.')[-1]) in edari_range:
             edari_devices[hostname] = ip
 
 # Ask the user to select a category
