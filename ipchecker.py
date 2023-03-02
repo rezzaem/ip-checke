@@ -20,6 +20,7 @@ genetic_devices = {}
 edari_devices = {}
 
 # Use nmap to scan for live hosts on the network
+print("checking Ip's....")
 nmap_output = subprocess.check_output(["nmap", "-sP", subnet + "0/24"]).decode('utf-8')
 
 # Parse the nmap output to extract the IP addresses and hostnames of live hosts
@@ -49,7 +50,8 @@ print('2. Hemato')
 print('3. Tests Room')
 print('4. Genetic')
 print('5. Edari')
-category = int(input())
+print('-------------------')
+category = int(input('enter the number :'))
 
 # Display an empty IP address for the selected category
 if category == 1:
